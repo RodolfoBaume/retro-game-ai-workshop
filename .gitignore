@@ -1,0 +1,47 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# Variables de entorno
+.env
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# Distribución / build
+# =========================
+build/
+dist/
+*.egg-info/
+
+# =========================
+# Testing / coverage
+# =========================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# Archivos temporales
+# =========================
+*.log
+*.tmp
+*.swp
+
+# =========================
+# Sistema operativo
+# =========================
+.DS_Store
+Thumbs.db

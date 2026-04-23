@@ -14,25 +14,6 @@ shoot_snd = pygame.mixer.Sound(f"{SND_DIR}/Shoot.wav")
 expl_snd = pygame.mixer.Sound(f"{SND_DIR}/Boom.wav")
 
 
-# 1. Cargar imágenes
-# convert() para el fondo negro (más rápido) y convert_alpha() para la nebulosa transparente
-bg_stars = pygame.image.load(f"{IMG_DIR}/estrellas.png").convert()
-bg_nebula = pygame.image.load(f"{IMG_DIR}/nebulosa.png").convert_alpha()
-
-# 2. Escalar al tamaño de la pantalla
-bg_stars = pygame.transform.scale(bg_stars, (SCREEN_WIDTH, SCREEN_HEIGHT))
-bg_nebula = pygame.transform.scale(bg_nebula, (SCREEN_WIDTH, SCREEN_HEIGHT))
-
-# 3. Variables independientes para las coordenadas Y
-stars_y1 = 0
-stars_y2 = -SCREEN_HEIGHT
-
-nebula_y1 = 0
-nebula_y2 = -SCREEN_HEIGHT
-
-# Cargar sonidos (Comentado hasta que tengan los archivos)
-# shoot_snd = pygame.mixer.Sound(f"{SND_DIR}/laser.wav")
-
 # 2. Función auxiliar para dibujar texto en pantalla (UI)
 def draw_text(surf, text, size, x, y, color=WHITE):
     # En un proyecto real, aquí cargarían la fuente descargada: pygame.font.Font(ruta, size)
@@ -58,7 +39,6 @@ frame_count = 0
 
 # 5. El Game Loop (Bucle Principal)
 running = True
-
 while running:
     # A. EVENTOS (Input)
     for event in pygame.event.get():
@@ -73,12 +53,11 @@ while running:
             elif game_state == "PLAYING" and event.key == pygame.K_SPACE:
                 # Disparar
                 player.shoot(bullets)
-                shoot_snd.play() # Reproduce el sonido una vez
+                shoot_snd.play()  # Reproducir el sonido de disparo
                 all_sprites.add(bullets)
 
     # B. LÓGICA (Update)
     if game_state == "PLAYING":
-
         all_sprites.update()
         frame_count += 1
 
@@ -89,38 +68,22 @@ while running:
             enemies.add(e)
 
         # Resolución de Colisiones: Balas vs Enemigos
+        # El 'True, True' indica que ambos objetos se eliminan al chocar (Garbage Collection)
         hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
         for hit in hits:
             score += 10
+            # Aquí podrían agregar explosiones visuales o reproducir el SFX
 
         # Resolución de Colisiones: Enemigos vs Jugador
+        # 'False' para que el jugador no se elimine inmediatamente de la memoria
         crashes = pygame.sprite.spritecollide(player, enemies, False)
         if crashes:
             game_state = "GAME_OVER"
 
-        # Movimiento de las estrellas (Lento)
-        stars_y1 += BG_SPEED_SLOW
-        stars_y2 += BG_SPEED_SLOW
-        if stars_y1 >= SCREEN_HEIGHT: stars_y1 = -SCREEN_HEIGHT
-        if stars_y2 >= SCREEN_HEIGHT: stars_y2 = -SCREEN_HEIGHT
-
-        # Movimiento de la nebulosa (Rápido)
-        nebula_y1 += BG_SPEED_FAST
-        nebula_y2 += BG_SPEED_FAST
-        if nebula_y1 >= SCREEN_HEIGHT: nebula_y1 = -SCREEN_HEIGHT
-        if nebula_y2 >= SCREEN_HEIGHT: nebula_y2 = -SCREEN_HEIGHT
-        
     # C. DIBUJADO (Render)
-    # 1. Limpiar pantalla
+    # Llenar el fondo de negro (o aquí dibujarían el Asset del fondo espacial)
     screen.fill(BLACK)
 
-    # 2. Dibujar Parallax SIEMPRE (se ve genial en el menú también)
-    screen.blit(bg_stars, (0, stars_y1))
-    screen.blit(bg_stars, (0, stars_y2))
-    screen.blit(bg_nebula, (0, nebula_y1))
-    screen.blit(bg_nebula, (0, nebula_y2))
-
-    # 3. Interfaz y Sprites según el estado
     if game_state == "START":
         draw_text(screen, TITLE, 50, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4, CYAN)
         draw_text(screen, "Presiona cualquier tecla para empezar", 22, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
@@ -129,21 +92,17 @@ while running:
         pygame.mixer.music.set_volume(0.4) # Ajustar volumen (0.0 a 1.0)
         pygame.mixer.music.play(loops=-1) # -1 hace que se repita infinitamente
 
-    
+
     elif game_state == "PLAYING":
-        # ¡Aquí se dibujan los sprites!
         all_sprites.draw(screen)
         draw_text(screen, f"Score: {score}", 30, SCREEN_WIDTH // 2, 10)
     
     elif game_state == "GAME_OVER":
-        # Si quieres que se vea la última posición de la nave antes de morir, 
-        # descomenta la siguiente línea:
-        # all_sprites.draw(screen)
         draw_text(screen, "GAME OVER", 74, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4, RED)
         draw_text(screen, f"Puntaje Final: {score}", 30, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         draw_text(screen, "Presiona cualquier tecla para reiniciar", 22, SCREEN_WIDTH // 2, SCREEN_HEIGHT * 3 / 4)
 
-    # 4. Actualizar la pantalla y controlar los FPS
+    # Actualizar la pantalla y controlar los FPS
     pygame.display.flip()
     clock.tick(FPS)
 
